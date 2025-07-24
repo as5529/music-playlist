@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Music Playlist</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+      max-width: 600px;
+    }
+    h1 { color: #333; }
+    input[type="text"] {
+      padding: 8px;
+      width: 70%;
+      margin-right: 10px;
+    }
+    button {
+      padding: 8px 12px;
+      margin: 5px;
+    }
+    .current-song {
+      margin: 20px 0;
+      font-weight: bold;
+      font-size: 1.2em;
+    }
+    ul {
+      list-style-type: decimal;
+      padding-left: 20px;
+    }
+    li {
+      margin: 6px 0;
+      cursor: pointer;
+    }
+    li span {
+      margin-right: 10px;
+    }
+    .delete-btn {
+      color: red;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🎵 Music Playlist</h1>
+
+  <input type="text" id="songInput" placeholder="Enter song title">
+  <button onclick="addSong()">Add Song</button>
+
+  <div class="current-song" id="currentSongDisplay">No song selected.</div>
+
+  <button onclick="prevSong()">⏮ Previous</button>
+  <button onclick="nextSong()">⏭ Next</button>
+
+  <h3>Playlist:</h3>
+  <ul id="playlist"></ul>
+
+  <script>
+    let playlist = [];
+    let currentIndex = -1;
+
+    const songInput = document.getElementById("songInput");
+    const playlistEl = document.getElementById("playlist");
+    const currentSongDisplay = document.getElementById("currentSongDisplay");
+
+    function addSong() {
+      const title = songInput.value.trim();
+      if (title) {
+        playlist.push(title);
+        if (currentIndex === -1) currentIndex = 0;
+        songInput.value = "";
+        renderPlaylist();
+        updateCurrentSong();
+      }
+    }
+
+    function renderPlaylist() {
+      playlistEl.innerHTML = "";
+      playlist.forEach((song, index) => {
+        const li = document.createElement("li");
+        
+        const titleSpan = document.createElement("span");
+        titleSpan.textContent = song;
+        titleSpan.onclick = () => jumpToSong(index);
+        
+        const deleteBtn = document.createElement("span");
+        deleteBtn.textContent = "🗑";
+        deleteBtn.className = "delete-btn";
+        deleteBtn.onclick = (e) => {
+          e.stopPropagation();
+          deleteSong(index);
+        };
+        
+        li.appendChild(titleSpan);
+        li.appendChild(deleteBtn);
+        playlistEl.appendChild(li);
+      });
+    }
+
+    function updateCurrentSong() {
+      if (playlist.length === 0) {
+        currentSongDisplay.textContent = "No songs in playlist.";
+        currentIndex = -1;
+      } else {
+        currentSongDisplay.textContent = `Now Playing: ${playlist[currentIndex]}`;
+      }
+    }
+
+    function nextSong() {
+      if (playlist.length === 0) return;
+      currentIndex = (currentIndex + 1) % playlist.length;
+      updateCurrentSong();
+    }
+
+    function prevSong() {
+      if (playlist.length === 0) return;
+      currentIndex = (currentIndex - 1 + playlist.length) % playlist.length;
+      updateCurrentSong();
+    }
+
+    function jumpToSong(index) {
+      currentIndex = index;
+      updateCurrentSong();
+    }
+
+    function deleteSong(index) {
+      playlist.splice(index, 1);
+      if (index === currentIndex) {
+        if (playlist.length === 0) {
+          currentIndex = -1;
+        } else if (index === playlist.length) {
+          currentIndex = playlist.length - 1;
+        }
+      } else if (index < currentIndex) {
+        currentIndex--;
+      }
+      renderPlaylist();
+      updateCurrentSong();
+    }
+  </script>
+
+</body>
+</html>
